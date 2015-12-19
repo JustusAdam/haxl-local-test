@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import Actors
+import Movies
 import Haxl.Core
 import Data.Traversable
 import Data.Maybe
@@ -10,12 +11,14 @@ singleton a = [a]
 
 main :: IO ()
 main = do
-  myEnv <- initEnv (stateSet StoreReqState stateEmpty) StoreReqState
+  myEnv <- initEnv
+    (stateSet MovieReqState $ stateSet StoreReqState stateEmpty) StoreReqState
   data' <- runHaxl myEnv $
     (++)
       <$> sequenceA
         [ getActor "Harry Potter"
         , getActor "Ron Weasley"
+        , getActorForMovie "Inception"
         , getActor "Argus Filtch" >>= maybe (getActor "Minerva McGonagall") (return . Just)
         ]
       <*> do
