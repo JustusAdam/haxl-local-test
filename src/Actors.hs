@@ -12,6 +12,7 @@ import           Data.Hashable
 import           Data.HashMap.Strict as HM
 import           Data.Typeable
 import           Haxl.Core
+import Control.Concurrent (threadDelay)
 
 
 type Value = String
@@ -63,8 +64,10 @@ storeFetch
 storeFetch _ _ _ reqs =
   SyncFetch $ do
     putStrLn "Doing actor round"
+    threadDelay 100000
     for_ reqs $ \(BlockedFetch fetch result) ->
       storeValFromFetch fetch >>= putSuccess result
+    putStrLn "Finished"
 
 
 getActor :: Key -> GenHaxl u (Maybe Value)

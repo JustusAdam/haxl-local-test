@@ -12,6 +12,8 @@ import           Data.Hashable
 import           Data.HashMap.Strict as HM
 import           Data.Typeable
 import           Haxl.Core
+import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (async, wait)
 
 
 type Value = String
@@ -60,10 +62,16 @@ storeFetch
   -> PerformFetch
 
 storeFetch _ _ _ reqs =
-  SyncFetch $ do
-    putStrLn "Doing movie round"
-    for_ reqs $ \(BlockedFetch fetch result) ->
-      storeValFromFetch fetch >>= putSuccess result
+  AsyncFetch $ \inner -> do
+    a <- async $ do
+      threadDelay 10000
+      putStrLn "Doing movie round"
+      for_ reqs $ \(BlockedFetch fetch result) ->
+        storeValFromFetch fetch >>= putSuccess result
+      threadDelay 80000
+      putStrLn "Finished movies"
+    inner
+    wait a
 
 
 getActorForMovie :: Key -> GenHaxl u (Maybe Value)
