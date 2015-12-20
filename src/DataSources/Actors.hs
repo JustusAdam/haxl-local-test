@@ -13,6 +13,7 @@ import           Data.Hashable
 import           Data.HashMap.Strict as HM
 import           Data.Typeable
 import           Haxl.Core
+import           Report
 
 
 type Value = String
@@ -31,7 +32,7 @@ getOneFromStore = flip HM.lookup valueStore
 
 storeValFromFetch :: StoreReq a -> IO a
 storeValFromFetch (GetValue key) = do
-  putStrLn $ "Fetching actor object " ++ show key
+  logLine $ "Fetching actor object " ++ show key
   return $ getOneFromStore key
 
 data StoreReq a where
@@ -63,11 +64,11 @@ storeFetch
 
 storeFetch _ _ _ reqs =
   SyncFetch $ do
-    putStrLn "Doing actor round"
+    logLine "Doing actor round"
     threadDelay 100000
     for_ reqs $ \(BlockedFetch fetch result) ->
       storeValFromFetch fetch >>= putSuccess result
-    putStrLn "Finished"
+    logLine "Finished"
 
 
 getActor :: Key -> GenHaxl u (Maybe Value)

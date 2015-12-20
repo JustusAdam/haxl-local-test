@@ -16,7 +16,8 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:
-      DataSources.Actors
+      Report
+    , DataSources.Actors
     , DataSources.Movies
   build-depends:
       base >= 4.7 && < 5

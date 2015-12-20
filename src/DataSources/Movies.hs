@@ -14,6 +14,7 @@ import           Data.Hashable
 import           Data.HashMap.Strict      as HM
 import           Data.Typeable
 import           Haxl.Core
+import           Report
 
 
 type Value = String
@@ -30,7 +31,7 @@ getOneFromStore = flip HM.lookup valueStore
 
 storeValFromFetch :: MovieReq a -> IO a
 storeValFromFetch (GetActor key) = do
-  putStrLn $ "Fetching movie object " ++ show key
+  logLine $ "Fetching movie object " ++ show key
   return $ getOneFromStore key
 
 
@@ -65,11 +66,11 @@ storeFetch _ _ _ reqs =
   AsyncFetch $ \inner -> do
     a <- async $ do
       threadDelay 10000
-      putStrLn "Doing movie round"
+      logLine "Doing movie round"
       for_ reqs $ \(BlockedFetch fetch result) ->
         storeValFromFetch fetch >>= putSuccess result
       threadDelay 80000
-      putStrLn "Finished movies"
+      logLine "Finished movies"
     inner
     wait a
 
