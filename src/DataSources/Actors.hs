@@ -4,15 +4,15 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
-module Actors (getActor, StoreReq, State(StoreReqState)) where
+module DataSources.Actors (getActor, StoreReq, State(StoreReqState)) where
 
 
+import           Control.Concurrent  (threadDelay)
 import           Data.Foldable       (for_)
 import           Data.Hashable
 import           Data.HashMap.Strict as HM
 import           Data.Typeable
 import           Haxl.Core
-import Control.Concurrent (threadDelay)
 
 
 type Value = String

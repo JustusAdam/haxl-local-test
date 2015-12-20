@@ -7,4 +7,4 @@ It attempts to use as much of the functionality provided by the library as possi
 
 ## Installing
 
-This project uses [stack](https://stackage.org) for dependency management. Simply clone the repository and run `stack install`.
+This project uses [stack](https://stackage.org) for dependency management. Simply clone the repository and run `stack build` to build the project and then `stack exec haxl-local-test-exe` to run it.

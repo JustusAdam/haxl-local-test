@@ -4,16 +4,16 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
-module Movies (getActorForMovie, MovieReq, State(MovieReqState)) where
+module DataSources.Movies (getActorForMovie, MovieReq, State(MovieReqState)) where
 
 
-import           Data.Foldable       (for_)
+import           Control.Concurrent       (threadDelay)
+import           Control.Concurrent.Async (async, wait)
+import           Data.Foldable            (for_)
 import           Data.Hashable
-import           Data.HashMap.Strict as HM
+import           Data.HashMap.Strict      as HM
 import           Data.Typeable
 import           Haxl.Core
-import Control.Concurrent (threadDelay)
-import Control.Concurrent.Async (async, wait)
 
 
 type Value = String

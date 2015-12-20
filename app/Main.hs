@@ -1,7 +1,7 @@
 module Main where
 
-import Actors
-import Movies
+import DataSources.Actors
+import DataSources.Movies
 import Haxl.Core
 import Data.Traversable
 import Data.Maybe
