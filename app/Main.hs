@@ -1,11 +1,18 @@
+{-
+I'd love to have written this entire thing in `do` notation, but the version of
+ghc on stack does not support the `ApplicativeDo` extension (yet).
+
+As a result using `do` would make a separate round for each dataFetch, which
+very much defeats the purpose of the library.
+-}
 module Main where
 
+import           Data.IORef
 import           Data.Maybe
 import           Data.Traversable
 import           DataSources.Actors
 import           DataSources.Movies
 import           Haxl.Core
-import Data.IORef
 
 
 main :: IO ()
@@ -22,23 +29,28 @@ main = do
           , getActor "Ron Weasley"
           , getActorForMovie "Inception"
           , getActor "Argus Filtch" >>=
-              maybe -- `maybe` does a pattern match to create a data dependency and
-                    -- push the subsequent request to the second round
-                (getActor "Minerva McGonagall")
-                (return . Just)
+            \Nothing -> -- do a pattern match to create a data dependency and
+                        -- push the subsequent request to the second round
+                        --
+                        -- theoretically this is not necessary, because
+                        -- ApplicativeDo is not enabled, hence the >>=
+                        -- already forces a data dependency, but I wanted to
+                        -- make sure this would be stable across compiler versions
+              getActor "Minerva McGonagall"
           ]
-        <*> do
-          h <- getActor "Harry Potter" -- this will also land in the first round
-                                       -- because it is the topmost fetch in the
-                                       -- do block
-          let ron = getActor "Ron Weasley"
-          case h of -- and a pattern match again to push `ron` to the second round
-            Nothing -> pure <$> ron
-            Just _ -> (: [h]) <$> ron
-    statsRef' <- env statsRef
+        <*> (
+          getActor "Harry Potter" >>=  -- this will also land in the first round
+                                       -- because it is the topmost fetch
+            \h@(Just _) -> -- and a pattern match again to push `ron` to the
+                           -- second round
+              (: [h]) <$> getActor "Ron Weasley"
+        )
+    statsRef' <- env statsRef -- get the statistics that Haxl collects
+                              -- (has to be done in the `GenHaxl` monad)
+                              -- or at least the IORef used to store it
     return (data', statsRef')
   statistics <- readIORef statsRef'
-  putStrLn "Resulting data"
-  print $ catMaybes data'
-  putStrLn "Statistics:"
-  putStrLn $ ppStats statistics
+  putStrLn "Resulting data:"
+  print $ catMaybes data'   -- Our data
+  putStrLn "Statistics:"        -- some nice statistics. Number of rounds,
+  putStrLn $ ppStats statistics -- number of fetches.
